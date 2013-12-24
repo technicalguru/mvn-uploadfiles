@@ -1,0 +1,60 @@
+ ------
+ Usage
+ ------
+ Ralph Schuster
+ ------
+ 2013-12-25
+ ------
+
+Usage
+
+%{toc|section=1|fromDepth=2|toDepth=3}
+
+* Generating a Site
+
+  To generate the project's site and reports, execute:
+
++-----+
+mvn eu.ralph-schuster:uploadfiles-maven-plugin:upload
++-----+
+
+  Upload the configured artifact to the repository.
+
+ <<Note:>> SNAPSHOT projects upload to their snapshotRepository.
+
+* Configuring the repositories
+
+  To be able to upload, you must first specify where the file(s) will be
+  deployed. This is set in the <<<\<distributionManagement\>>>> element of the
+  POM as shown below.
+
++-----+
+<project>
+  ...
+  <distributionManagement>
+    <repository>
+      <id>www.yourcompany.com</id>
+      <url>scp://www.yourcompany.com/www/docs/project/</url>
+    </repository>
+  </distributionManagement>
+  ...
+</project>
++-----+
+
+  The <<<\<id\>>>> element identifies the repository, so that you can attach
+  credentials to it in your <<<settings.xml>>> file using the
+  {{{http://maven.apache.org/settings.html#Servers}<<<\<servers\>>>> element}}
+  as you would for any other repository.
+
+  The <<<\<url\>>>> gives the location to deploy to. In the example above we
+  copy to the host <<<www.mycompany.com>>> using the path
+  <<</www/docs/project/>>> over the <<<scp>>> protocol. You can read more about
+  which protocols are supported on
+  {{{./examples/adding-deploy-protocol.html}this page}}. If
+  subprojects inherit the site URL from a parent POM, they will automatically
+  append their <<<\<artifactId\>>>> to form their effective deployment location.
+
+  Now you can execute the <<<{{{./upload-mojo.html}upload}}>>> goal from
+  your project directory.
+
+ 

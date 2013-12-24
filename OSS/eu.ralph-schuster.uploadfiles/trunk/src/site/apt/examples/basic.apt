@@ -1,0 +1,68 @@
+ ------
+ Basic Examples
+ ------
+ Ralph Schuster
+ ------
+ 2013-12-25
+ ------
+
+Basic Examples
+
+%{toc|section=1|fromDepth=2|toDepth=3}
+
+  The following examples show how to use the Site Plugin in more advanced usecases:
+
+* Upload the project's main artifact:
+
++-----+
+<configuration>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+* Upload a directory:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+* Upload a directory under a different name:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>parentDirectory/newDirectoryName</targetPath>
+</configuration>
++-----+
+
+* Upload a directory to the repository's root:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>.</targetPath>
+</configuration>
++-----+
+
+* Upload a file:
+
++-----+
+<configuration>
+   <path>target/file.jar</path>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+* Upload and rename a file:
+
++-----+
+<configuration>
+   <path>target/file.jar</path>
+   <targetPath>parentDirectory/newName.jar</targetPath>
+</configuration>
++-----+
+
+
