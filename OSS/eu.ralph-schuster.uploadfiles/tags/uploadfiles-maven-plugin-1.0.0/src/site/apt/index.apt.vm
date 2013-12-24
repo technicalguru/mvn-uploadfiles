@@ -1,0 +1,92 @@
+ ------
+ Introduction
+ ------
+ Ralph Schuster
+ ------
+ 2013-12-25
+ ------
+
+Upload Plugin
+
+ The Upload Plugin is used to upload files and directories to a repository.
+
+ This is the site of the uploadfiles-maven-plugin. It requires at least Maven ${prerequisiteMavenVersion} to run. There
+ is no plugin version for Maven 2 or earlier releases.
+
+* Goals Overview
+
+   The Upload Plugin has one goal:
+
+   * {{{./upload-mojo.html}uploadfiles:upload}} is used to upload a single path location (being a file or
+     directory).
+  
+* Usage
+
+  General instructions on how to use the Upload Plugin can be found on the {{{./usage.html}usage page}}. Some more
+  specific use cases are described in the examples given below. 
+
+  If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in the
+  {{{./issue-tracking.html}issue tracker}}. When creating a new issue, please provide a comprehensive description of your
+  concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason,
+  entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated.
+  Of course, patches are welcome, too. Contributors can check out the project from our
+  {{{./source-repository.html}source repository}}.
+
+* Examples
+
+   The following examples show how to use the Upload Plugin in basic usecases:
+
+   Upload the project's main artifact:
+
++-----+
+<configuration>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+   Upload a directory:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+   Upload a directory under a different name:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>parentDirectory/newDirectoryName</targetPath>
+</configuration>
++-----+
+
+   Upload a directory to the repository's root:
+
++-----+
+<configuration>
+   <path>target/repository</path>
+   <targetPath>.</targetPath>
+</configuration>
++-----+
+
+   Upload a file:
+
++-----+
+<configuration>
+   <path>target/file.jar</path>
+   <targetPath>parentDirectory/</targetPath>
+</configuration>
++-----+
+
+   Upload and rename a file:
+
++-----+
+<configuration>
+   <path>target/file.jar</path>
+   <targetPath>parentDirectory/newName.jar</targetPath>
+</configuration>
++-----+
+
+
