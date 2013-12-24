@@ -1,0 +1,144 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<properties>
+		<assembly.skipAssembly>true</assembly.skipAssembly>
+		<maven.plugin.version>3.1.1</maven.plugin.version>
+	</properties>
+
+	<parent>
+		<groupId>eu.ralph-schuster</groupId>
+		<artifactId>pom-oss</artifactId>
+		<version>1.4.1</version>
+	</parent>
+
+	<groupId>eu.ralph-schuster</groupId>
+	<artifactId>uploadfiles-maven-plugin</artifactId>
+	<packaging>maven-plugin</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>${project.groupId}.${project.artifactId}</name>
+	<url>http://download.ralph-schuster.eu/${project.groupId}.${project.artifactId}/${project.version}</url>
+	<description>Uploading/Publishing artifacts via protocols</description>
+
+	<scm>
+		<connection>scm:svn:https://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</connection>
+		<developerConnection>scm:svn:https://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</developerConnection>
+		<url>https://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</url>
+	</scm>
+
+	<distributionManagement>
+		<site>
+			<id>strato-server</id>
+			<url>scp://h2031995.stratoserver.net/var/www/vhosts/ralph-schuster.eu/download/${project.groupId}.${project.artifactId}/${project.version}</url>
+		</site>
+	</distributionManagement>
+
+	<issueManagement>
+		<system>Jira</system>
+		<url>http://jira.ralph-schuster.eu/browse/RSLIBS</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>bamboo</system>
+		<url>http://bamboo.ralph-schuster.eu/browse/RSLIB</url>
+	</ciManagement>
+
+	<developers>
+		<developer>
+			<id>ralph</id>
+			<name>Ralph Schuster</name>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact-manager</artifactId>
+			<version>2.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${maven.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>${maven.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-shared-utils</artifactId>
+			<version>0.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>${maven.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-tools-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-embedder</artifactId>
+			<version>${maven.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-aether-provider</artifactId>
+			<version>${maven.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-tools-annotations</artifactId>
+			<version>3.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-component-annotations</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-provider-api</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-ssh</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-file</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-ftp</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+	</dependencies>
+
+</project>

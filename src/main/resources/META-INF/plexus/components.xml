@@ -1,0 +1,19 @@
+<component-set>
+    <components>
+        <component>
+            <role>org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout</role>
+            <role-hint>p2</role-hint>
+            <implementation>rs.mojo.uploadfiles.P2RepositoryLayout</implementation>
+        </component>
+        <component>
+            <role>org.apache.maven.artifact.deployer.ArtifactDeployer</role>
+            <role-hint>other</role-hint>
+            <implementation>rs.mojo.uploadfiles.OtherArtifactDeployer</implementation>
+        </component>
+        <component>
+            <role>org.apache.maven.artifact.deployer.ArtifactDeployer</role>
+            <role-hint>plain</role-hint>
+            <implementation>rs.mojo.uploadfiles.PlainArtifactDeployer</implementation>
+        </component>
+    </components>
+</component-set>
