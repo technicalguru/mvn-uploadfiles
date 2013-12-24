@@ -54,7 +54,37 @@ import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
- * Goal which touches a timestamp file.
+ * Goal that uploads a file or directory to a distribution repository.
+ * <p>The target "upload" is used mainly to copy simple files or directories up to
+ * a repository. It was created due to a tycho lack of publishing P2 repositories.
+ * This plugin is able to copy such directories.</p>
+ * Example:
+ * <pre>
+	&lt;build&gt;
+		&lt;plugins&gt;
+			&lt;plugin&gt;
+				&lt;groupId&gt;eu.ralph-schuster&lt;/groupId&gt;
+				&lt;artifactId&gt;uploadfiles-maven-plugin&lt;/artifactId&gt;
+				&lt;version&gt;1.0.0&lt;/version&gt;
+				&lt;executions&gt;
+					&lt;execution&gt;
+						&lt;goals&gt;&lt;goal&gt;upload&lt;/goal&gt;&lt;/goals&gt;
+						&lt;phase&gt;deploy&lt;/phase&gt;
+					&lt;/execution&gt;
+				&lt;/executions&gt;
+				&lt;configuration&gt;
+					&lt;path&gt;target/repository&lt;/path&gt;
+					&lt;targetPath&gt;.&lt;/targetPath&gt;
+				&lt;/configuration&gt;
+			&lt;/plugin&gt;
+		&lt;/plugins&gt;
+	&lt;/build&gt;
+ * </pre>
+ * The example above uploads the target/repository folder to the root of the repository (specified
+ * by &lt;distributionManagement&gt; &lt;repository&gt; or &lt;snapshotRepository&gt;.
+ * 
+ * @author Ralph Schuster
+ * @version 1.0.0
  */
 @Mojo(name="upload", defaultPhase=LifecyclePhase.DEPLOY)
 public class Upload extends AbstractMojo {
