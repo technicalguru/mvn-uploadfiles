@@ -17,7 +17,9 @@ package rs.mojo.uploadfiles;
  */
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -205,6 +207,8 @@ public class Upload extends AbstractMojo {
 	@Component
 	private PlexusContainer container;
 
+	private Map<String,String> replacements;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -269,6 +273,7 @@ public class Upload extends AbstractMojo {
 		getLog().debug( "proxyInfo with id '" + repository.getId() + "': " + 
 				( ( proxyInfo == null ) ? "-" : proxyInfo.getUserName() ) );
 
+		createReplacements(repository, authenticationInfo);
 		try {
 
 			push( file, repository, wagon, authenticationInfo, proxyInfo, getTargetPath() );
@@ -315,6 +320,17 @@ public class Upload extends AbstractMojo {
 		return pi;
 	}
 
+	private void createReplacements(Repository repository, AuthenticationInfo authenticationInfo) {
+		replacements = new HashMap<String, String>();
+		String basedir = repository.getBasedir();
+		if (basedir.endsWith("/")) basedir = basedir.substring(0, basedir.length()-1);
+		replacements.put("repository.basedir", basedir);
+		String user = authenticationInfo != null ? authenticationInfo.getUserName() : "null";
+		replacements.put("repository.user", user);
+		replacements.put("repository.host", repository.getHost());
+		replacements.put("repository.id", repository.getId());
+	}
+	
 	@SuppressWarnings("deprecation")
 	private Wagon getWagon( final Repository repository, final WagonManager manager ) throws MojoExecutionException {
 		final Wagon wagon;
@@ -433,6 +449,7 @@ public class Upload extends AbstractMojo {
 		boolean doFail = !command.startsWith("@");
 		if (!doFail) command = command.substring(1);
 		try {
+			command = setVariables(command, replacements);
 			exec.executeCommand( command );
 		} catch ( CommandExecutionException e ) {
 			boolean messageOnly = e.getMessage().indexOf("Exit code:") >= 0;
@@ -463,6 +480,17 @@ public class Upload extends AbstractMojo {
 			}
 		}
 		return true;
+	}
+
+	private String setVariables(String command, Map<String,String> replacements) {
+		if (replacements != null) {
+			for (Map.Entry<String,String> entry : replacements.entrySet()) {
+				String variable = entry.getKey();
+				String value = entry.getValue();
+				command = command.replaceAll("\\$"+variable, value);
+			}
+		}
+		return command;
 	}
 
 	/**
@@ -509,6 +537,5 @@ public class Upload extends AbstractMojo {
 			}
 		}
 	}
-
 
 }
