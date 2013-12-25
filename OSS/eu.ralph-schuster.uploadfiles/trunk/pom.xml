@@ -15,7 +15,7 @@
 	<groupId>eu.ralph-schuster</groupId>
 	<artifactId>uploadfiles-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>${project.groupId}.${project.artifactId}</name>
 	<url>http://download.ralph-schuster.eu/${project.groupId}.${project.artifactId}/${project.version}</url>
 	<description>Uploading/Publishing artifacts via protocols</description>
@@ -27,9 +27,9 @@
 	<inceptionYear>2013</inceptionYear>
 
 	<scm>
-		<connection>scm:svn:http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/tags/uploadfiles-maven-plugin-1.1.0</connection>
-		<developerConnection>scm:svn:http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/tags/uploadfiles-maven-plugin-1.1.0</developerConnection>
-		<url>http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/tags/uploadfiles-maven-plugin-1.1.0</url>
+		<connection>scm:svn:http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</connection>
+		<developerConnection>scm:svn:http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</developerConnection>
+		<url>http://h2031995.stratoserver.net/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</url>
 	</scm>
 
 	<distributionManagement>
