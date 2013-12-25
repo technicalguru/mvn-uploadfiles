@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,6 +30,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.Proxy;
 import org.apache.maven.repository.legacy.WagonManager;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -40,8 +42,10 @@ import org.apache.maven.wagon.TransferFailedException;
 import org.apache.maven.wagon.UnsupportedProtocolException;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.authentication.AuthenticationException;
+import org.apache.maven.wagon.authentication.AuthenticationInfo;
 import org.apache.maven.wagon.authorization.AuthorizationException;
 import org.apache.maven.wagon.observers.Debug;
+import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.maven.wagon.repository.Repository;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
@@ -164,7 +168,7 @@ public class Upload extends AbstractMojo {
 	 * {@inheritDoc}
 	 */
 	public void execute() throws MojoExecutionException {
-//		getLog().info("Deploying '"+getPath().getPath()+"' to '"+getTargetPath()+"' @ '"+repository.getUrl());
+		//		getLog().info("Deploying '"+getPath().getPath()+"' to '"+getTargetPath()+"' @ '"+repository.getUrl());
 		deploy(getPath(), new Repository( repository.getId(), appendSlash( repository.getUrl() ) ));
 	}
 
@@ -172,21 +176,21 @@ public class Upload extends AbstractMojo {
 		if (path != null) return path;
 		return project.getArtifact().getFile();
 	}
-	
-    /**
-     * Make sure the given url ends with a slash.
-     *
-     * @param url a String.
-     * @return if url already ends with '/' it is returned unchanged,
-     *         otherwise a '/' character is appended.
-     */
-    protected static String appendSlash( final String url ) {
-        if ( url.endsWith( "/" ) ) {
-            return url;
-        } else {
-            return url + "/";
-        }
-    }
+
+	/**
+	 * Make sure the given url ends with a slash.
+	 *
+	 * @param url a String.
+	 * @return if url already ends with '/' it is returned unchanged,
+	 *         otherwise a '/' character is appended.
+	 */
+	protected static String appendSlash( final String url ) {
+		if ( url.endsWith( "/" ) ) {
+			return url;
+		} else {
+			return url + "/";
+		}
+	}
 
 	protected String getTargetPath() {
 		String rc = null;
@@ -200,7 +204,7 @@ public class Upload extends AbstractMojo {
 		if (rc.endsWith("/") || (rc.length() == 0)) {
 			rc += path.getName();
 		}
-		
+
 		return rc;
 	}
 
@@ -214,9 +218,19 @@ public class Upload extends AbstractMojo {
 			throw new MojoExecutionException( "Unable to configure Wagon: '" + repository.getProtocol() + "'", e );
 		}
 
+		// Authentication Info
+		AuthenticationInfo authenticationInfo = authenticationInfo( this.repository );
+		getLog().debug( "authenticationInfo with id '" + repository.getId() + "': " + 
+				( ( authenticationInfo == null ) ? "-" : authenticationInfo.getUserName() ) );
+		
+		// Proxy Info
+		ProxyInfo proxyInfo = proxyInfo(this.repository);
+		getLog().debug( "proxyInfo with id '" + repository.getId() + "': " + 
+				( ( proxyInfo == null ) ? "-" : proxyInfo.getUserName() ) );
+		
 		try {
 
-			push( file, repository, wagon, getTargetPath() );
+			push( file, repository, wagon, authenticationInfo, proxyInfo, getTargetPath() );
 
 			if ( chmod ) {
 				chmod( wagon, repository, chmodOptions, chmodMode );
@@ -228,6 +242,36 @@ public class Upload extends AbstractMojo {
 				getLog().error( "Error disconnecting wagon - ignored", e );
 			}
 		}
+	}
+
+	private AuthenticationInfo authenticationInfo(ArtifactRepository repository) {
+		Authentication auth = repository.getAuthentication();
+		AuthenticationInfo ai = null;
+		if (auth != null) {
+			ai = new AuthenticationInfo();
+			ai.setUserName( auth.getUsername() );
+			ai.setPassword( auth.getPassword() );
+			ai.setPassphrase(auth.getPassphrase());
+			ai.setPrivateKey(auth.getPrivateKey());
+		}
+		return ai;
+	}
+
+	private ProxyInfo proxyInfo(ArtifactRepository repository) {
+		Proxy proxy = repository.getProxy();
+		ProxyInfo pi = null;
+		if (proxy != null) {
+			pi = new ProxyInfo();
+			pi.setHost(proxy.getHost());
+			pi.setPort(proxy.getPort());
+			pi.setType(proxy.getProtocol());
+			pi.setNonProxyHosts(proxy.getNonProxyHosts());
+			pi.setNtlmDomain(proxy.getNtlmDomain());
+			pi.setNtlmHost(proxy.getNtlmHost());
+			pi.setUserName(proxy.getUserName());
+			pi.setPassword(proxy.getPassword());
+		}
+		return pi;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -271,13 +315,13 @@ public class Upload extends AbstractMojo {
 		return "";
 	}
 
-	private void push( final File f, final Repository repository, final Wagon wagon, final String targetPath)	throws MojoExecutionException {
+	private void push( final File f, final Repository repository, final Wagon wagon, final AuthenticationInfo authenticationInfo, final ProxyInfo proxyInfo, final String targetPath)	throws MojoExecutionException {
 		try {
 			Debug debug = new Debug();
 
 			wagon.addSessionListener( debug );
 			wagon.addTransferListener( debug );
-			wagon.connect( repository );
+			wagon.connect( repository, authenticationInfo, proxyInfo );
 
 			if (f.isDirectory()) {
 				wagon.putDirectory( f, targetPath );
