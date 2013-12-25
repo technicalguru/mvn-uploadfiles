@@ -17,6 +17,7 @@ package rs.mojo.uploadfiles;
  */
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -104,12 +105,14 @@ public class Upload extends AbstractMojo {
 
 	/**
 	 * File or directory to be uploaded, defaults to main artifact file.
+	 * @since 1.0
 	 */
 	@Parameter( alias = "path", required = false )
 	private File path;
 
 	/**
 	 * Target directory and/or target name, relative to repository root. Defaults #{@link #path}.
+	 * @since 1.0
 	 */
 	@Parameter( alias = "targetPath", required = false )
 	private String targetPath;
@@ -118,7 +121,7 @@ public class Upload extends AbstractMojo {
 	 * Whether to run the "chmod" command on the remote site after the deploy.
 	 * Defaults to "true".
 	 *
-	 * @since 2.1
+	 * @since 1.0
 	 */
 	@Parameter( property = "rs.upload.chmod", defaultValue = "true" )
 	private boolean chmod;
@@ -127,7 +130,7 @@ public class Upload extends AbstractMojo {
 	 * The mode used by the "chmod" command. Only used if chmod = true.
 	 * Defaults to "g+w,a+rX".
 	 *
-	 * @since 2.1
+	 * @since 1.0
 	 */
 	@Parameter( property = "rs.upload.chmod.mode", defaultValue = "g+w,a+rX" )
 	private String chmodMode;
@@ -136,7 +139,7 @@ public class Upload extends AbstractMojo {
 	 * The options used by the "chmod" command. Only used if chmod = true.
 	 * Defaults to "-Rf".
 	 *
-	 * @since 2.1
+	 * @since 1.0
 	 */
 	@Parameter( property = "rs.upload.chmod.options", defaultValue = "-Rf" )
 	private String chmodOptions;
@@ -144,10 +147,48 @@ public class Upload extends AbstractMojo {
 	/**
 	 * Set this to 'true' to skip upload.
 	 *
-	 * @since 3.0
+	 * @since 1.0
 	 */
 	@Parameter( property = "rs.upload.skip", defaultValue = "false" )
 	private boolean skipDeploy;
+
+	/**
+	 * Execute these remote commands before uploading.
+	 * You can prefix a single command with '@' so its errors will always be ignored.
+	 * Commands are executed from the user's home directory.
+	 *
+	 * @since 1.1
+	 */
+	@Parameter
+	private List<String> preCommands;
+
+	/**
+	 * Set this to 'true' to fail in case any pre command fails.
+	 * You can prefix a single command with '@' so its errors will always be ignored.
+	 *
+	 * @since 1.1
+	 */
+	@Parameter( property = "rs.upload.failOnPreCommandErrors", defaultValue = "false" )
+	private boolean failOnPreCommandErrors;
+
+	/**
+	 * Execute these remote commands after uploading.
+	 * You can prefix a single command with '@' so its errors will always be ignored.
+	 * Commands are executed from the user's home directory.
+	 *
+	 * @since 1.1
+	 */
+	@Parameter
+	private List<String> postCommands;
+
+	/**
+	 * Set this to 'true' to fail in case any post command fails.
+	 * You can prefix a single command with '@' so its errors will always be ignored.
+	 *
+	 * @since 1.1
+	 */
+	@Parameter( property = "rs.upload.failOnPostCommandErrors", defaultValue = "false" )
+	private boolean failOnPostCommandErrors;
 
 	/**
 	 * The current user system settings for use in Maven.
@@ -156,7 +197,7 @@ public class Upload extends AbstractMojo {
 	private Settings settings;
 
 	/**
-	 * @since 3.0-beta-2
+	 * @since 1.0
 	 */
 	@Component
 	protected MavenSession mavenSession;
@@ -222,12 +263,12 @@ public class Upload extends AbstractMojo {
 		AuthenticationInfo authenticationInfo = authenticationInfo( this.repository );
 		getLog().debug( "authenticationInfo with id '" + repository.getId() + "': " + 
 				( ( authenticationInfo == null ) ? "-" : authenticationInfo.getUserName() ) );
-		
+
 		// Proxy Info
 		ProxyInfo proxyInfo = proxyInfo(this.repository);
 		getLog().debug( "proxyInfo with id '" + repository.getId() + "': " + 
 				( ( proxyInfo == null ) ? "-" : proxyInfo.getUserName() ) );
-		
+
 		try {
 
 			push( file, repository, wagon, authenticationInfo, proxyInfo, getTargetPath() );
@@ -323,11 +364,22 @@ public class Upload extends AbstractMojo {
 			wagon.addTransferListener( debug );
 			wagon.connect( repository, authenticationInfo, proxyInfo );
 
+			if (!executePreCommands(wagon, repository) && failOnPreCommandErrors) {
+				getLog().error("Aborting due to previous errors");
+				throw new MojoExecutionException("Aborting due to previous errors");
+			};
+
 			if (f.isDirectory()) {
 				wagon.putDirectory( f, targetPath );
 			} else {
 				wagon.put( f, targetPath);
 			}
+
+			if (!executePostCommands(wagon, repository) && failOnPostCommandErrors) {
+				getLog().error("Aborting due to previous errors");
+				throw new MojoExecutionException("Aborting due to previous errors");
+			};
+
 		} catch ( ResourceDoesNotExistException e ) {
 			throw new MojoExecutionException( "Error uploading site", e );
 		} catch ( TransferFailedException e ) {
@@ -351,6 +403,66 @@ public class Upload extends AbstractMojo {
 		} catch ( CommandExecutionException e ) {
 			throw new MojoExecutionException( "Error uploading site", e );
 		}
+	}
+
+	private boolean executePreCommands(final Wagon wagon, final Repository repository) throws MojoExecutionException {
+		if ( wagon instanceof CommandExecutor ) {
+			return executeCommands((CommandExecutor)wagon, repository, preCommands, failOnPreCommandErrors);
+		}
+		return false;
+	}
+
+	private boolean executePostCommands(final Wagon wagon, final Repository repository) throws MojoExecutionException {
+		if ( wagon instanceof CommandExecutor ) {
+			return executeCommands((CommandExecutor)wagon, repository, postCommands, failOnPostCommandErrors);
+		}
+		return false;
+	}
+
+	private boolean executeCommands(final CommandExecutor exec, final Repository repository, final List<String> commands, boolean failOnError) throws MojoExecutionException {
+		if ((commands == null) || (commands.size() == 0)) return true;
+		boolean rc = true;
+		for (String cmd : commands) {
+			rc &= executeCommand(exec, repository, cmd, failOnError);
+			if (failOnError && !rc) return rc;
+		}
+		return rc;
+	}
+
+	private boolean executeCommand(CommandExecutor exec, Repository repository, String command, boolean doError) throws MojoExecutionException {
+		boolean doFail = !command.startsWith("@");
+		if (!doFail) command = command.substring(1);
+		try {
+			exec.executeCommand( command );
+		} catch ( CommandExecutionException e ) {
+			boolean messageOnly = e.getMessage().indexOf("Exit code:") >= 0;
+			if (doFail) {
+				if (doError) {
+					if (messageOnly) {
+						getLog().error("Command failed: "+command);
+						getLog().error("  "+e.getLocalizedMessage());
+					} else {
+						getLog().error("Command failed: "+command, e);
+					}
+				} else {
+					if (messageOnly) {
+						getLog().warn("Command failed: "+command);
+						getLog().warn("  "+e.getLocalizedMessage());
+					} else {
+						getLog().warn("Command failed: "+command, e);
+					}
+				}
+				return false;
+			} else {
+				if (messageOnly) {
+					getLog().warn("Command failed: "+command);
+					getLog().warn("  "+e.getLocalizedMessage());
+				} else {
+					getLog().warn("Command failed: "+command, e);
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
