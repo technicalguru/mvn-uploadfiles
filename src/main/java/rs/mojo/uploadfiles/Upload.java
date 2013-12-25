@@ -89,7 +89,13 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  * </pre>
  * The example above uploads the target/repository folder to the root of the repository (specified
  * by &lt;distributionManagement&gt; &lt;repository&gt; or &lt;snapshotRepository&gt;.
- * 
+ * <p>Pre and post commands can use variables:</p>
+ * <ul>
+ * <li>$repository.basedir - base directory of repository</li>
+ * <li>$repository.user - user name for repository</li>
+ * <li>$repository.host - hostname of repository</li>
+ * <li>$repository.id - id of repository </li>
+ * </ul>
  * @author Ralph Schuster
  * @version 1.0.0
  */
