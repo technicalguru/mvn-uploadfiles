@@ -456,6 +456,7 @@ public class Upload extends AbstractMojo {
 		if (!doFail) command = command.substring(1);
 		try {
 			command = setVariables(command, replacements);
+			getLog().info("exec: "+command);
 			exec.executeCommand( command );
 		} catch ( CommandExecutionException e ) {
 			boolean messageOnly = e.getMessage().indexOf("Exit code:") >= 0;
