@@ -26,9 +26,9 @@
 	<inceptionYear>2013</inceptionYear>
 
 	<scm>
-		<connection>scm:svn:http://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</connection>
-		<developerConnection>scm:svn:http://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</developerConnection>
-		<url>http://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</url>
+		<connection>scm:svn:https://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</connection>
+		<developerConnection>scm:svn:https://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</developerConnection>
+		<url>https://svn.ralph-schuster.eu/svn/OSS/eu.ralph-schuster.uploadfiles/trunk</url>
 	</scm>
 
 	<distributionManagement>
