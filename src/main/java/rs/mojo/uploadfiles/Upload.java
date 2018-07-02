@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.artifact.manager.WagonManager;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.execution.MavenSession;
@@ -34,7 +35,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.Proxy;
-import org.apache.maven.repository.legacy.WagonManager;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.wagon.CommandExecutionException;
@@ -201,13 +201,13 @@ public class Upload extends AbstractMojo {
 	/**
 	 * The current user system settings for use in Maven.
 	 */
-	@Component
+	@Parameter( defaultValue = "${settings}", readonly = true )
 	private Settings settings;
 
 	/**
 	 * @since 1.0
 	 */
-	@Component
+	@Parameter( defaultValue = "${session}", readonly = true )
 	protected MavenSession mavenSession;
 
 	@Component
@@ -337,7 +337,6 @@ public class Upload extends AbstractMojo {
 		replacements.put("repository.id", repository.getId());
 	}
 	
-	@SuppressWarnings("deprecation")
 	private Wagon getWagon( final Repository repository, final WagonManager manager ) throws MojoExecutionException {
 		final Wagon wagon;
 
