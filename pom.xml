@@ -65,7 +65,7 @@
 
 	<organization>
 		<name>RSoft</name>
-		<url>http://techblog.ralph-schuster.eu</url>
+		<url>https://github.com/technicalguru/mvn-uploadfiles</url>
 	</organization>
 
 	<dependencies>
